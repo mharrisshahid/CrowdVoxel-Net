@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CrowdVoxel-Net: Voxelized Geometry & Transformer-Based Multimodal Fusion for UAV Activity Recognition</title>
+<meta name="description" content="CrowdVoxel-Net — a geometry-aware multimodal framework for activity recognition and anomaly detection in UAV-based crowded scenes. Published in the Egyptian Informatics Journal (Elsevier)." />
+<meta property="og:title" content="CrowdVoxel-Net — Egyptian Informatics Journal" />
+<meta property="og:description" content="Voxelized geometry and transformer-based multimodal fusion for activity recognition and anomaly detection in UAV-based crowded scenes." />
+<meta property="og:type" content="article" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbf7f3;         /* warm cream */
+    --bg-alt: #f3ecfb;     /* soft lavender */
+    --surface: #ffffff;
+    --surface-2: #faf5ff;
+    --border: #ece4dc;
+    --border-strong: #d9cfe4;
+    --text: #3a3348;       /* soft ink */
+    --muted: #7c748a;
+    --accent: #b39ddb;     /* pastel lavender */
+    --accent-2: #f5b7c9;   /* pastel pink */
+    --accent-3: #a8d8c4;   /* pastel mint */
+    --accent-4: #f6d9a1;   /* pastel peach */
+    --highlight: #7a6ba8;  /* deeper lavender for links/hi */
+    --grad-soft: linear-gradient(135deg, #f7d9e8 0%, #e0d5f5 50%, #cde8dc 100%);
+    --sans: 'Inter', system-ui, sans-serif;
+    --display: 'Fraunces', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(12px);
+    background: rgba(251,247,243,.85);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px;
+  }
+  .brand { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: -.01em; color: var(--text); }
+  .brand span { color: var(--highlight); }
+  .nav-links { display: flex; gap: 22px; font-size: 14px; }
+  .nav-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
+  .nav-links a:hover { color: var(--highlight); }
+  @media (max-width: 800px){ .nav-links{display:none;} }
+
+  /* LAYOUT */
+  main { position: relative; }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+  section { padding: 72px 0; }
+
+  /* HERO */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+    background: var(--grad-soft);
+    border-bottom: 1px solid var(--border);
+  }
+  .tag {
+    display: inline-block;
+    padding: 6px 14px; border: 1px solid var(--border-strong);
+    border-radius: 999px; background: rgba(255,255,255,.6);
+    font-size: 12px; color: var(--highlight);
+    margin-bottom: 24px; letter-spacing: .04em;
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(1.9rem, 4.4vw, 3.1rem);
+    line-height: 1.15; letter-spacing: -.015em;
+    font-weight: 600; margin-bottom: 20px; color: var(--text);
+  }
+  h1 em { font-style: italic; color: var(--highlight); font-weight: 500; }
+  .subtitle {
+    font-size: clamp(1rem, 1.4vw, 1.1rem);
+    color: var(--muted); max-width: 720px; margin: 0 auto 32px;
+  }
+  .authors {
+    font-size: 1rem; margin-top: 24px; margin-bottom: 6px;
+    color: var(--text); font-weight: 500;
+  }
+  .authors sup { color: var(--highlight); font-weight: 600; }
+  .affil { font-size: .8rem; color: var(--muted); max-width: 860px; margin: 0 auto; line-height: 1.6; }
+  .affil sup { color: var(--highlight); }
+
+  .journal-row {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .chip {
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: rgba(255,255,255,.7);
+    font-size: 12px; color: var(--text);
+  }
+  .chip b { color: var(--highlight); margin-left: 4px; }
+
+  .cta-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+  .btn {
+    padding: 11px 20px; border-radius: 999px;
+    font-weight: 500; font-size: 14px;
+    text-decoration: none; transition: transform .2s, background .2s, border-color .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--highlight); color: #fff; }
+  .btn-primary:hover { transform: translateY(-1px); background: #64568f; }
+  .btn-ghost { border: 1px solid var(--border-strong); color: var(--text); background: rgba(255,255,255,.7); }
+  .btn-ghost:hover { border-color: var(--highlight); color: var(--highlight); }
+
+  /* SECTION HEADERS */
+  .kicker {
+    font-size: 12px;
+    color: var(--highlight); text-transform: uppercase; letter-spacing: .16em;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: var(--display); font-weight: 600;
+    font-size: clamp(1.5rem, 2.6vw, 2.05rem); line-height: 1.2;
+    letter-spacing: -.01em; margin-bottom: 18px; color: var(--text);
+  }
+  h3 {
+    font-family: var(--display); font-weight: 600;
+    font-size: 1.2rem; margin: 30px 0 10px;
+    color: var(--text);
+  }
+  p { color: var(--text); margin-bottom: 14px; }
+
+  /* PANELS */
+  .panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 26px;
+  }
+
+  /* HIGHLIGHTS GRID */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 800px){ .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 500px){ .grid-3 { grid-template-columns: 1fr; } }
+  .stat {
+    padding: 22px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--surface);
+  }
+  .stat:nth-child(1) { background: #f7ecf3; }
+  .stat:nth-child(2) { background: #eef1fb; }
+  .stat:nth-child(3) { background: #ecf6ef; }
+  .stat:nth-child(4) { background: #fbf3e6; }
+  .stat:nth-child(5) { background: #f0ecfb; }
+  .stat:nth-child(6) { background: #fdeef0; }
+  .stat .num {
+    font-family: var(--display); font-weight: 600;
+    font-size: 1.9rem; color: var(--text);
+  }
+  .stat .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-top: 4px; }
+
+  /* FIGURES */
+  figure {
+    margin: 24px 0;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  figure img {
+    width: 100%; height: auto; display: block;
+    background: #f5f0eb;
+  }
+  figcaption {
+    padding: 14px 20px;
+    font-size: .87rem; color: var(--muted);
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  figcaption b { color: var(--highlight); margin-right: 6px; }
+
+  /* TABLES */
+  .table-wrap {
+    overflow-x: auto; margin: 22px 0;
+    border: 1px solid var(--border); border-radius: 14px;
+    background: var(--surface);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  caption {
+    text-align: left; padding: 14px 20px;
+    font-family: var(--display); font-weight: 600;
+    color: var(--text); border-bottom: 1px solid var(--border);
+  }
+  caption b { color: var(--highlight); margin-right: 8px; font-weight: 500; }
+  th, td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+  th {
+    background: #f6efe8;
+    color: var(--highlight);
+    font-size: 12px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #faf5ff; }
+  td.hi { color: var(--highlight); font-weight: 600; }
+
+  /* DATASET CARDS */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 800px){ .grid-2 { grid-template-columns: 1fr; } }
+  .ds {
+    padding: 20px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--surface);
+    transition: border-color .2s, transform .2s;
+    display: block; text-decoration: none; color: inherit;
+  }
+  .ds:hover { border-color: var(--highlight); transform: translateY(-2px); }
+  .ds .name { font-family: var(--display); font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; color: var(--text); }
+  .ds .arr { float: right; color: var(--highlight); }
+  .ds .link { font-size: 12px; color: var(--muted); margin-top: 8px; word-break: break-all; }
+
+  /* PIPELINE */
+  .pipeline {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+    margin: 22px 0;
+  }
+  @media (max-width: 900px){ .pipeline { grid-template-columns: repeat(2, 1fr); } }
+  .step {
+    padding: 14px; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--surface);
+    text-align: center;
+  }
+  .step:nth-child(odd) { background: #f6efe8; }
+  .step:nth-child(even) { background: #eee7f8; }
+  .step .n { font-size: 11px; color: var(--highlight); font-weight: 600; }
+  .step .t { font-size: .82rem; margin-top: 6px; font-weight: 500; color: var(--text); }
+
+  /* FOOTER */
+  footer {
+    padding: 50px 0 40px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted); font-size: .85rem;
+    background: var(--surface-2);
+  }
+  footer a { color: var(--highlight); text-decoration: none; }
+
+  ul { padding-left: 20px; color: var(--text); margin-bottom: 14px; }
+  li { margin-bottom: 8px; }
+  strong { color: var(--text); font-weight: 600; }
+  a { color: var(--highlight); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand">CrowdVoxel<span>-Net</span></div>
+    <div class="nav-links">
+      <a href="#abstract">Abstract</a>
+      <a href="#method">Method</a>
+      <a href="#figures">Figures</a>
+      <a href="#results">Results</a>
+      <a href="#datasets">Datasets</a>
+      <a href="#cite">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container">
+      <div class="tag">Egyptian Informatics Journal · Elsevier · 2026</div>
+      <h1>CrowdVoxel-Net: <em>Voxelized geometry</em> and transformer-based multimodal fusion for activity recognition and anomaly detection in UAV-based crowded scenes</h1>
+      <p class="subtitle">A geometry-aware multimodal framework that fuses voxelized orthogonal depth projections, self-supervised semantics, dense point tracking, and keypoint correspondences to recognize human activities and detect anomalies from aerial drone imagery.</p>
+
+      <div class="authors">
+        Harris Shahid<sup>a</sup>, Bayan Alabdullah<sup>b</sup>, Shaheryar Najam<sup>c</sup>, Hadeel Alsolai<sup>b</sup>, Fatimah Alhayan<sup>b</sup>, Ahmad Jalal<sup>d,e,*</sup>, Hui Liu<sup>f,g,h,**</sup>
+      </div>
+      <div class="affil">
+        <sup>a</sup> HITEC Institute of Medical Sciences, Taxila, Pakistan · <sup>b</sup> Department of Information Systems, College of Computer and Information Sciences, Princess Nourah bint Abdulrahman University, Riyadh, Saudi Arabia · <sup>c</sup> Department of Electrical Engineering, Bahria University, Islamabad, Pakistan · <sup>d</sup> Department of Computer Science, Air University, Islamabad, Pakistan · <sup>e</sup> Department of Computer Science and Engineering, College of Informatics, Korea University, Seoul, South Korea · <sup>f</sup> Guodian Nanjing Automation Co., Ltd, Nanjing, China · <sup>g</sup> Jiangsu Key Laboratory of Intelligent Medical Image Computing, Nanjing University of Information Science and Technology, Nanjing, China · <sup>h</sup> Cognitive Systems Lab, University of Bremen, Germany
+      </div>
+
+      <div class="journal-row">
+        <div class="chip">Impact Factor <b>4.2</b></div>
+        <div class="chip">CiteScore <b>9.1</b></div>
+        <div class="chip">DOI <b>10.1016/j.eij.2026.101020</b></div>
+        <div class="chip">Open Access <b>CC BY-NC-ND</b></div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://www.sciencedirect.com/science/article/pii/S1110866526001374" target="_blank" rel="noopener">Read on ScienceDirect →</a>
+        <a class="btn btn-ghost" href="https://www.researchgate.net/publication/408719579_CrowdVoxel-Net_Voxelized_geometry_and_transformer-based_multimodal_fusion_for_activity_recognition_and_anomaly_detection_in_UAV-based_crowded_scenes" target="_blank" rel="noopener">ResearchGate</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ABSTRACT -->
+  <section id="abstract">
+    <div class="container">
+      <div class="kicker">01 · Abstract</div>
+      <h2>Reasoning about geometry, motion, and semantics from the sky.</h2>
+      <div class="panel">
+        <p>Recognizing human activities and detecting anomalous behaviors in crowded scenes from unmanned aerial vehicle (UAV) imagery remains a challenging problem due to severe occlusions, scale compression, viewpoint distortion, and weak appearance cues, which limit the effectiveness of conventional ground-based and 2D appearance-driven methods.</p>
+        <p>To address these challenges, this paper proposes <strong>CrowdVoxel-Net</strong>, a geometry-aware multimodal framework for UAV-based activity recognition and anomaly detection. A novel aerial silhouette extraction network — <strong>SA-Net</strong> — enables reliable human foreground isolation under complex drone viewpoints. Pseudo-3D human structure is reconstructed via monocular depth estimation and encoded using <strong>voxelized orthogonal depth projections</strong>. Long-range spatiotemporal motion is modeled with <strong>CoTracker</strong>, and domain-invariant semantics are extracted with a Vision Transformer–based <strong>DINO</strong> backbone. Local structural cues are strengthened with a compact <strong>SuperPoint + LightGlue</strong> descriptor and fast cross-frame matching module. These complementary geometric, semantic, spatial, and temporal representations are fused with a Transformer-based classifier for joint activity recognition and anomaly detection.</p>
+      </div>
+
+      <div class="grid-3" style="margin-top:24px;">
+        <div class="stat"><div class="num">95.2%</div><div class="lbl">ShanghaiTech Accuracy</div></div>
+        <div class="stat"><div class="num">91.2%</div><div class="lbl">Drone Action Accuracy</div></div>
+        <div class="stat"><div class="num">85.7%</div><div class="lbl">CADG Accuracy</div></div>
+        <div class="stat"><div class="num">85.2%</div><div class="lbl">UAV-Human (15-class)</div></div>
+        <div class="stat"><div class="num">53.3%</div><div class="lbl">UAV-Human (155-class)</div></div>
+        <div class="stat"><div class="num">106.5M</div><div class="lbl">Total Parameters</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section id="method" style="background: var(--bg-alt);">
+    <div class="container">
+      <div class="kicker">02 · Method</div>
+      <h2>A six-stage geometry-aware pipeline.</h2>
+      <p>CrowdVoxel-Net decomposes UAV video into complementary geometric, semantic, spatial, and temporal streams, then fuses them for joint recognition of activities and anomalies.</p>
+
+      <div class="pipeline">
+        <div class="step"><div class="n">01</div><div class="t">Preprocessing & Augmentation</div></div>
+        <div class="step"><div class="n">02</div><div class="t">SA-Net Silhouette Extraction</div></div>
+        <div class="step"><div class="n">03</div><div class="t">Voxelized Orthogonal Depth</div></div>
+        <div class="step"><div class="n">04</div><div class="t">DINO Semantic Features</div></div>
+        <div class="step"><div class="n">05</div><div class="t">CoTracker + SuperPoint/LightGlue</div></div>
+        <div class="step"><div class="n">06</div><div class="t">Transformer Fusion & Classifier</div></div>
+      </div>
+
+      <h3>Key contributions</h3>
+      <ul>
+        <li><strong>SA-Net</strong> — a hierarchical encoder–decoder segmentation model with a global context bottleneck and boundary-conserving decoder, tailored to aerial silhouette extraction under scale compression and viewpoint distortion.</li>
+        <li><strong>Voxelized orthogonal depth projections</strong> — monocular depth is lifted to a pseudo-3D voxel grid and projected across front, top, side, isometric, cabinet, military, and cavalier views to capture view-consistent volumetric cues.</li>
+        <li><strong>Motion + correspondence stack</strong> — CoTracker delivers long-range dense trajectories; SuperPoint + LightGlue provides sparse, geometry-aware cross-frame matches confined to human regions.</li>
+        <li><strong>Transformer fusion</strong> — a positional-encoded encoder–decoder produces a joint embedding used for activity classification and anomaly scoring.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FIGURES -->
+  <section id="figures">
+    <div class="container">
+      <div class="kicker">03 · Figures</div>
+      <h2>Architecture, representations, and qualitative results.</h2>
+
+      <figure>
+        <img src="./figures/Architecture diagram.png" alt="Architecture diagram of CrowdVoxel-Net" loading="lazy">
+        <figcaption><b>Fig. 1.</b> Overview of the proposed CrowdVoxel-Net, illustrating preprocessing, SA-Net based silhouette extraction, voxelized orthogonal depth projections, DINO semantic features, SuperPoint + LightGlue spatial correspondences, CoTracker motion trajectories, and their fusion for joint activity recognition and anomaly detection.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/Silhouette Extraction.png" alt="Silhouette extraction pipeline" loading="lazy">
+        <figcaption><b>Fig. 2.</b> Silhouette extraction pipeline: normalized input frames pass through UAV-specific augmentation and are segmented by SA-Net to isolate human foregrounds under aerial viewpoints.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/SA-Net.png" alt="SA-Net architecture" loading="lazy">
+        <figcaption><b>Fig. 3.</b> Architecture and training pipeline of SA-Net: dataset processing, UAV-specific data augmentation, a four-layer hierarchical encoder, a global context bottleneck, a boundary-conserving decoder, optimization, and deployment.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/SA-Net Comparison.png" alt="Silhouette extraction comparison" loading="lazy">
+        <figcaption><b>Fig. 4.</b> Silhouette extraction comparison using various segmentation models: (a) original frame, (b) DeepLab, (c) Mask R-CNN, (d) Detectron2, and (e) the proposed SA-Net.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/Voxelated Orthogonal Views.png" alt="Voxelized orthogonal views" loading="lazy">
+        <figcaption><b>Fig. 5.</b> Orthogonal voxelized depth representation: (a) monocular depth estimate, (b) front, (c) top, (d) side projections, (e–f) isometric right/left, (g) cabinet, (h–i) military right/left, and (j) cavalier projections.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/DINO Results.png" alt="DINO layerwise feature maps" loading="lazy">
+        <figcaption><b>Fig. 6.</b> Layerwise feature maps from the DINO backbone. Row 1: UAV-Human (pushing another person); Row 2: CADG (fight); Row 3: Drone Action (stabbing).</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/CoTracker.png" alt="CoTracker dense point tracking" loading="lazy">
+        <figcaption><b>Fig. 7.</b> Dense point tracking with CoTracker. Row 1: UAV-Human sequence; Row 2: CADG sequence, showing trajectory stability across frames.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/LightGlue & SuperPoint.png" alt="LightGlue and SuperPoint correspondences" loading="lazy">
+        <figcaption><b>Fig. 8.</b> Sparse local correspondences via SuperPoint keypoints and LightGlue matching, providing geometry-aware alignment across frames within segmented human regions.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/Transformer.png" alt="Transformer-based classifier" loading="lazy">
+        <figcaption><b>Fig. 9.</b> Transformer-based classifier: positional encoding is applied to fused inputs, and an encoder–decoder pipeline produces refined embeddings projected through a linear layer and Softmax for final classification.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/Confusion Matrices.png" alt="Confusion matrices" loading="lazy">
+        <figcaption><b>Fig. 10.</b> Confusion matrices of CrowdVoxel-Net on four benchmark datasets: (a) ShanghaiTech, (b) CADG, (c) Drone Action, and (d) UAV-Human.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/Bar charts.jpg" alt="Precision, recall, F1 bar charts" loading="lazy">
+        <figcaption><b>Fig. 11.</b> Precision, recall, and F1 score of CrowdVoxel-Net across four benchmark datasets: CADG, UAV-Human, Drone Action, and ShanghaiTech.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="./figures/ROC Curves.png" alt="ROC curves" loading="lazy">
+        <figcaption><b>Fig. 12.</b> ROC curves across datasets: (a) ShanghaiTech, (b) CADG, (c) Drone Action, and (d) UAV-Human.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- RESULTS / TABLES -->
+  <section id="results" style="background: var(--bg-alt);">
+    <div class="container">
+      <div class="kicker">04 · Results</div>
+      <h2>Consistent gains across four UAV benchmarks.</h2>
+
+      <div class="table-wrap">
+        <table>
+          <caption><b>Table 1.</b> Performance evaluation metrics (AVG ± STD) across datasets.</caption>
+          <thead>
+            <tr><th>Dataset</th><th>Precision</th><th>Recall</th><th>F1-Score</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>UAV-Human (155-class)</td><td>0.4397 ± 0.028</td><td>0.4393 ± 0.031</td><td>0.4391 ± 0.029</td></tr>
+            <tr><td>Drone Action</td><td>0.875 ± 0.014</td><td>0.870 ± 0.016</td><td>0.8715 ± 0.015</td></tr>
+            <tr><td>ShanghaiTech</td><td class="hi">0.936 ± 0.018</td><td class="hi">0.936 ± 0.017</td><td class="hi">0.936 ± 0.017</td></tr>
+            <tr><td>CADG</td><td>0.850 ± 0.006</td><td>0.852 ± 0.006</td><td>0.850 ± 0.005</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <caption><b>Table 2.</b> Comparison of CrowdVoxel-Net with state-of-the-art methods (classification accuracy, %).</caption>
+          <thead>
+            <tr><th>Dataset</th><th>Method</th><th>Accuracy (%)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="8">UAV-Human (155-class)</td><td>Usman et al. [9]</td><td>44.0</td></tr>
+            <tr><td>Liang et al. [37]</td><td>39.9</td></tr>
+            <tr><td>Yan et al. [38]</td><td>41.22</td></tr>
+            <tr><td>Xijun et al. [39]</td><td>39.2</td></tr>
+            <tr><td>Ruijie et al. [40]</td><td>41.6</td></tr>
+            <tr><td>Mehmood et al. [41]</td><td>43.7</td></tr>
+            <tr><td>Ruiqi et al. [42]</td><td>40.2</td></tr>
+            <tr><td><strong>Proposed CrowdVoxel-Net</strong></td><td class="hi">53.3</td></tr>
+
+            <tr><td rowspan="4">UAV-Human (15-class subset)</td><td>Abdul et al. [43]</td><td>84.74</td></tr>
+            <tr><td>Laiba et al. [44]</td><td>56.40</td></tr>
+            <tr><td>Yawar et al. [45]</td><td>68.00</td></tr>
+            <tr><td><strong>Proposed CrowdVoxel-Net</strong></td><td class="hi">85.2</td></tr>
+
+            <tr><td rowspan="10">Drone Action</td><td>Yawar et al. [46]</td><td>83.0</td></tr>
+            <tr><td>Usman et al. [9]</td><td>90.0</td></tr>
+            <tr><td>Usman et al. [47]</td><td>80.3</td></tr>
+            <tr><td>Yawar et al. [48]</td><td>85.0</td></tr>
+            <tr><td>Yawar et al. [49]</td><td>85.0</td></tr>
+            <tr><td>Santosh et al. [10]</td><td>78.86</td></tr>
+            <tr><td>Shahab et al. [50]</td><td>75.4</td></tr>
+            <tr><td>Sohaib et al. [51]</td><td>74.64</td></tr>
+            <tr><td>Asanka et al. [34]</td><td>75.92</td></tr>
+            <tr><td><strong>Proposed CrowdVoxel-Net</strong></td><td class="hi">91.2</td></tr>
+
+            <tr><td rowspan="6">ShanghaiTech</td><td>Sarah et al. [52]</td><td>91.87</td></tr>
+            <tr><td>Ramoliya et al. [53]</td><td>91.94</td></tr>
+            <tr><td>Hanan et al. [54]</td><td>85.75</td></tr>
+            <tr><td>Ying et al. [55]</td><td>94.32</td></tr>
+            <tr><td>Israr et al. [56]</td><td>82.0</td></tr>
+            <tr><td><strong>Proposed CrowdVoxel-Net</strong></td><td class="hi">95.2</td></tr>
+
+            <tr><td>CADG</td><td><strong>Proposed CrowdVoxel-Net</strong></td><td class="hi">85.7</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <caption><b>Table 3.</b> Ablation study across datasets (accuracy, %).</caption>
+          <thead>
+            <tr><th>Configuration</th><th>UAV-Human</th><th>Drone Action</th><th>ShanghaiTech</th><th>CADG</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Without Preprocessing</td><td>49.12</td><td>88.21</td><td>87.12</td><td>81.29</td></tr>
+            <tr><td>Without Voxelized Orthogonal Projections</td><td>44.41</td><td>79.92</td><td>82.12</td><td>69.56</td></tr>
+            <tr><td>Without DINO ResNet Deep Feature Extraction</td><td>39.28</td><td>82.81</td><td>68.54</td><td>74.24</td></tr>
+            <tr><td>Without Dense Spatiotemporal Motion Tracking</td><td>47.25</td><td>85.57</td><td>80.92</td><td>73.15</td></tr>
+            <tr><td>Without SuperPoint Self-Supervised Correspondence</td><td>45.52</td><td>85.92</td><td>86.63</td><td>77.79</td></tr>
+            <tr><td><strong>Full Model (CrowdVoxel-Net)</strong></td><td class="hi">53.30</td><td class="hi">91.20</td><td class="hi">95.20</td><td class="hi">85.70</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <caption><b>Table 4.</b> Computational complexity of the CrowdVoxel-Net framework.</caption>
+          <thead>
+            <tr><th>Process</th><th>Execution Time (s)</th><th>MFLOPs</th><th>Parameters (M)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Preprocessing</td><td>0.01079</td><td>1.51</td><td>—</td></tr>
+            <tr><td>SA-Net Silhouette Extraction</td><td>0.0108</td><td>4,804.18</td><td>28.4</td></tr>
+            <tr><td>Voxelized Depth Orthogonal Projections</td><td>4.2179</td><td>15,000.00</td><td>12.5</td></tr>
+            <tr><td>Point Cloud Voxelization</td><td>0.00231</td><td>0.39</td><td>—</td></tr>
+            <tr><td>DINO ResNet Deep Feature Extraction</td><td>4.2594</td><td>15,004.92</td><td>25.6</td></tr>
+            <tr><td>Dense Spatiotemporal Motion Tracking</td><td>0.0133</td><td>2.31</td><td>24.5</td></tr>
+            <tr><td>Self-Supervised Correspondence (SuperPoint + LightGlue)</td><td>0.0135</td><td>148.05</td><td>6.8</td></tr>
+            <tr><td>Transformer Feature Fusion</td><td>0.1975</td><td>0.03</td><td>8.7</td></tr>
+            <tr><td><strong>Total</strong></td><td class="hi">4.329</td><td class="hi">19,961.11</td><td class="hi">106.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Takeaways</h3>
+      <ul>
+        <li><strong>Voxelized orthogonal projections</strong> contribute the largest ablation drop, confirming that explicit 3D spatial reasoning is critical under aerial views.</li>
+        <li><strong>DINO semantics</strong> and <strong>dense motion tracking</strong> provide complementary gains, especially on complex fine-grained action classes.</li>
+        <li><strong>SuperPoint + LightGlue</strong> correspondences add moderate but consistent stability to geometric alignment across frames.</li>
+        <li>Fusion delivers a new state-of-the-art on ShanghaiTech, Drone Action, and both UAV-Human protocols.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- DATASETS -->
+  <section id="datasets">
+    <div class="container">
+      <div class="kicker">05 · Datasets</div>
+      <h2>Four challenging aerial benchmarks.</h2>
+      <div class="grid-2">
+        <a class="ds" href="https://sutdcv.github.io/uav-human-web/" target="_blank" rel="noopener">
+          <div class="name">UAV-Human <span class="arr">↗</span></div>
+          <div>Large-scale UAV benchmark with 155 fine-grained action classes captured from diverse aerial viewpoints.</div>
+          <div class="link">sutdcv.github.io/uav-human-web</div>
+        </a>
+        <a class="ds" href="https://asankagp.github.io/droneaction/" target="_blank" rel="noopener">
+          <div class="name">Drone Action <span class="arr">↗</span></div>
+          <div>Outdoor drone-captured human actions with clean motion patterns and clear inter-class separability.</div>
+          <div class="link">asankagp.github.io/droneaction</div>
+        </a>
+        <a class="ds" href="https://svip-lab.github.io/dataset/campus_dataset.html" target="_blank" rel="noopener">
+          <div class="name">ShanghaiTech Campus <span class="arr">↗</span></div>
+          <div>Widely used anomaly detection benchmark spanning multiple campus scenes and unusual event classes.</div>
+          <div class="link">svip-lab.github.io/dataset/campus_dataset.html</div>
+        </a>
+        <a class="ds" href="https://cadg24.github.io/home/" target="_blank" rel="noopener">
+          <div class="name">CADG <span class="arr">↗</span></div>
+          <div>Crowded aerial dataset with multi-agent interactions, camera motion, and dense group dynamics.</div>
+          <div class="link">cadg24.github.io/home</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CITE -->
+  <section id="cite" style="background: var(--bg-alt);">
+    <div class="container">
+      <div class="kicker">06 · Citation</div>
+      <h2>Cite this work.</h2>
+      <div class="panel">
+        <p style="font-size: .92rem; color: var(--text);">
+          Shahid H., Alabdullah B., Najam S., Alsolai H., Alhayan F., Jalal A., Liu H.
+          <em>CrowdVoxel-Net: Voxelized geometry and transformer-based multimodal fusion for activity recognition and anomaly detection in UAV-based crowded scenes.</em>
+          Egyptian Informatics Journal, 35 (2026) 101020.
+          <a href="https://doi.org/10.1016/j.eij.2026.101020" target="_blank" rel="noopener">https://doi.org/10.1016/j.eij.2026.101020</a>
+        </p>
+      </div>
+      <div class="cta-row" style="justify-content:flex-start;">
+        <a class="btn btn-primary" href="https://www.sciencedirect.com/science/article/pii/S1110866526001374" target="_blank" rel="noopener">Full text (Elsevier) →</a>
+        <a class="btn btn-ghost" href="https://www.researchgate.net/publication/408719579" target="_blank" rel="noopener">ResearchGate</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      Published in the <a href="https://www.sciencedirect.com/journal/egyptian-informatics-journal" target="_blank" rel="noopener">Egyptian Informatics Journal</a> · Elsevier · © 2026 The Authors. Open access under CC BY-NC-ND 4.0.
+    </div>
+  </footer>
+</main>
+
+</body>
+</html>
