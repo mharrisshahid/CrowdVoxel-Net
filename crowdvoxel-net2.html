@@ -356,32 +356,32 @@
       <h2>Architecture, representations, and qualitative results.</h2>
 
       <figure>
-        <img src="./figures/Architecture diagram.png" alt="Architecture diagram of CrowdVoxel-Net" loading="lazy">
+        <img src="Architecture diagram.png" alt="Architecture diagram of CrowdVoxel-Net" loading="lazy">
         <figcaption><b>Fig. 1.</b> Overview of the proposed CrowdVoxel-Net, illustrating preprocessing, SA-Net based silhouette extraction, voxelized orthogonal depth projections, DINO semantic features, SuperPoint + LightGlue spatial correspondences, CoTracker motion trajectories, and their fusion for joint activity recognition and anomaly detection.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/Silhouette Extraction.png" alt="Silhouette extraction pipeline" loading="lazy">
+        <img src="Silhouette Extraction.png" alt="Silhouette extraction pipeline" loading="lazy">
         <figcaption><b>Fig. 2.</b> Silhouette extraction pipeline: normalized input frames pass through UAV-specific augmentation and are segmented by SA-Net to isolate human foregrounds under aerial viewpoints.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/SA-Net.png" alt="SA-Net architecture" loading="lazy">
+        <img src="SA-Net.png" alt="SA-Net architecture" loading="lazy">
         <figcaption><b>Fig. 3.</b> Architecture and training pipeline of SA-Net: dataset processing, UAV-specific data augmentation, a four-layer hierarchical encoder, a global context bottleneck, a boundary-conserving decoder, optimization, and deployment.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/SA-Net Comparison.png" alt="Silhouette extraction comparison" loading="lazy">
+        <img src="SA-Net Comparison.png" alt="Silhouette extraction comparison" loading="lazy">
         <figcaption><b>Fig. 4.</b> Silhouette extraction comparison using various segmentation models: (a) original frame, (b) DeepLab, (c) Mask R-CNN, (d) Detectron2, and (e) the proposed SA-Net.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/Voxelated Orthogonal Views.png" alt="Voxelized orthogonal views" loading="lazy">
+        <img src="Voxelated Orthogonal Views.png" alt="Voxelized orthogonal views" loading="lazy">
         <figcaption><b>Fig. 5.</b> Orthogonal voxelized depth representation: (a) monocular depth estimate, (b) front, (c) top, (d) side projections, (e–f) isometric right/left, (g) cabinet, (h–i) military right/left, and (j) cavalier projections.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/DINO Results.png" alt="DINO layerwise feature maps" loading="lazy">
+        <img src="DINO Results.png" alt="DINO layerwise feature maps" loading="lazy">
         <figcaption><b>Fig. 6.</b> Layerwise feature maps from the DINO backbone. Row 1: UAV-Human (pushing another person); Row 2: CADG (fight); Row 3: Drone Action (stabbing).</figcaption>
       </figure>
 
@@ -391,27 +391,27 @@
       </figure>
 
       <figure>
-        <img src="./figures/LightGlue & SuperPoint.png" alt="LightGlue and SuperPoint correspondences" loading="lazy">
+        <img src="LightGlue & SuperPoint.png" alt="LightGlue and SuperPoint correspondences" loading="lazy">
         <figcaption><b>Fig. 8.</b> Sparse local correspondences via SuperPoint keypoints and LightGlue matching, providing geometry-aware alignment across frames within segmented human regions.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/Transformer.png" alt="Transformer-based classifier" loading="lazy">
+        <img src="Transformer.png" alt="Transformer-based classifier" loading="lazy">
         <figcaption><b>Fig. 9.</b> Transformer-based classifier: positional encoding is applied to fused inputs, and an encoder–decoder pipeline produces refined embeddings projected through a linear layer and Softmax for final classification.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/Confusion Matrices.png" alt="Confusion matrices" loading="lazy">
+        <img src="Confusion Matrices.png" alt="Confusion matrices" loading="lazy">
         <figcaption><b>Fig. 10.</b> Confusion matrices of CrowdVoxel-Net on four benchmark datasets: (a) ShanghaiTech, (b) CADG, (c) Drone Action, and (d) UAV-Human.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/Bar charts.jpg" alt="Precision, recall, F1 bar charts" loading="lazy">
+        <img src="Bar charts.jpg" alt="Precision, recall, F1 bar charts" loading="lazy">
         <figcaption><b>Fig. 11.</b> Precision, recall, and F1 score of CrowdVoxel-Net across four benchmark datasets: CADG, UAV-Human, Drone Action, and ShanghaiTech.</figcaption>
       </figure>
 
       <figure>
-        <img src="./figures/ROC Curves.png" alt="ROC curves" loading="lazy">
+        <img src="ROC Curves.png" alt="ROC curves" loading="lazy">
         <figcaption><b>Fig. 12.</b> ROC curves across datasets: (a) ShanghaiTech, (b) CADG, (c) Drone Action, and (d) UAV-Human.</figcaption>
       </figure>
     </div>
